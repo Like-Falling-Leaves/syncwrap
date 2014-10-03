@@ -90,6 +90,31 @@ describe('Examples', function () {
         assert.ok(!err); assert.equal(val[0], 10); assert.equal(val[1], 6); done(); 
       });  
   });
+
+  it ('Example Advanced useWith and get', function (done) {
+    function testUseWith(x, y, done) { return done(null, {x: x, y: y}); }
+    testUseWith.wrapped(5, 3)
+      .useWith(function (done) { return done(null, this); })
+      .get('x')
+      .done(function (err, val) {
+        assert.ok(!err);
+        assert.equal(val, 5);
+        done();
+      })();
+  });
+
+  it ('Example Advanced get and exec', function (done) {
+    function testUseWith(x, y, done) { return done(null, {x: function getX(arg) { return arg + x; }, y: y}); }
+    testUseWith.wrapped(5, 3)
+      .useWith(function (done) { return done(null, this); })
+      .get('x').execSync(15).sync(true)
+      .done(function (err, val) {
+        assert.ok(!err);
+        assert.equal(val, 20);
+        done();
+      })();
+  });
+
 });
 
 describe('Sync Wrap Suite', function () {

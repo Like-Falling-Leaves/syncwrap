@@ -185,3 +185,58 @@ There is no built-in support for serial execution of async functions but that is
      next.wrapped().done(function () { serialize(funcs, done); });
    }
 ```
+
+### Advanced features
+
+### get
+
+You can fetch fields off of a promise and return a promise back.  The example is if you want a user's name but the user object itself needs to be fetched, you could do this:
+
+```javascript
+   
+   // Assume User.findById(id, done) returns a <user> object which has a Name property.
+
+   function getUserName(userId, done) {
+     User.findById.wrap(id)
+       .get('Name')
+       .done(done)
+      (); // this is needed to actually execute as useWith provides a lazy evaluation object
+   }
+
+### useWith
+
+You can use useWith to call functions on a promised value.  Example:
+
+```javascript
+
+   // Assume User.findById(id, done) returns a <user> object which has a getState method.
+   // To get the state of a user for id <userId>, you can do this:
+
+   function getUserState(userId, done) {
+     User.findById.wrap(id)
+       .useWith(function (cb) { return cb(null, this.getState()); })
+       .done(done)
+      (); // this is needed to actually execute as useWith provides a lazy evaluation object
+   }
+```
+
+### exec and execSync
+
+The above example can also be made more readable by fetching the getState method and calling it. This is where exec comes in -- it can call a promise.
+
+```javascript
+
+   // Assume User.findById(id, done) returns a <user> object which has a getState method.
+   // To get the state of a user for id <userId>, you can do this:
+
+   function getUserState(userId, done) {
+     User.findById.wrap(id)
+       .get('getState')
+       .execSync() // we use execSync because the getState does not take a callback parameter
+       .done(done)
+      (); // this is needed to actually execute as useWith provides a lazy evaluation object
+   }
+```
+
+Note that you can pass parameters to exec and execSync and they get passed on to the base function.
+

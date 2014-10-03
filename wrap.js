@@ -22,6 +22,11 @@ function wrap(fn, context, args) {
   wrapped.successValue = successValue;
   wrapped.ignoreErrors = ignoreErrors;
   wrapped.set = set;
+
+  wrapped.useWith = useWith;
+  wrapped.get = getField;
+  wrapped.exec = exec;
+  wrapped.execSync = execSync;
   return wrapped;
 
   function wrapped() {
@@ -137,3 +142,16 @@ function success(val) {
   return this; 
 }
 function sync(bool) { this._sync = bool; return this; }
+function useWith(fn) { return wrap(fn, this, Array.prototype.slice.call(arguments, 1)); }
+function getField(field) { return wrap(function (done) { return done(null, _getField(this, field)); }, this); }
+function execSync() { return wrap(_execSync, this, Array.prototype.slice.call(arguments)); }
+function exec() { return wrap(_exec, this, Array.prototype.slice.call(arguments)); }
+
+
+function _getField(obj, field) { 
+  var ret = obj && obj[field];
+  if (typeof(ret) == 'function') ret = ret.bind(obj);
+  return ret;
+}
+function _execSync(done) { return wrap(this, null, Array.prototype.slice.call(arguments)).sync(true); }
+function _exec(done) { return wrap(this, null, Array.prototype.slice.call(arguments)); }
