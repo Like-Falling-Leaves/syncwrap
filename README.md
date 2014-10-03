@@ -36,6 +36,7 @@ This document is pretty sketchy. You can look at the unit tests to see more deta
    All the examples assume the following functions:
 
 ```javascript
+
 var wrap = require('syncwrap');
 var assert = require('assert');
 
@@ -43,6 +44,7 @@ function test(x, y, done) { return done(null, x + y); }
 function testFail(x, y, done) { return done('Failed'); }
 function testSync(x, y) { return x + y; }
 function join(x, y, z) { return [x, y, z].join(' '); }
+
 ```
 
 ### Example #1: Calling an series of async functions.
