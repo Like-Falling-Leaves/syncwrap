@@ -1,0 +1,17 @@
+{
+  "name": "syncwrap",
+  "description": "Yet another library for managing async calls on node",
+  "keywords": ["async", "sync", "control", "flow"],
+  "homepage": "https://github.com/like-falling-leaves/syncwrap",
+  "bugs": { "url": "https://github.com/like-falling-leaves/syncwrap/issues" },
+  "license": "MIT",
+  "author": {"name": "Like FallingLeaves", "email": "likefallingleaves@gmail.com"},
+  "main": "./wrap.js",
+  "maintainers": [{"name": "Like FallingLeaves", "email": "likefallingleaves@gmail.com"}],
+  "version": "0.0.1",
+  "repository": { "type": "git", "url": "git://github.com/like-falling-leaves/syncwrap.git" },
+  "readmeFilename": "README.md",
+  "dependencies": {},
+  "devDependencies": { "mocha": "1.*" },
+  "scripts": { "test": "mocha test/" }
+}
