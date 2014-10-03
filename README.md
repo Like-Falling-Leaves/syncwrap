@@ -3,13 +3,14 @@
 This is yet another module to help manage async libraries.  There are two main differences between this and other modules:
 
 * Promises are evaluated lazily.
-* Promises can be passed to functions that are not aware of promises -- so it does not have to infect all the code everywhere.
+* Non-invasive, non-infectious: promises can be passed to functions that are not aware of promises and the fundamental style of programming does not need to change. No reason to also use complex flow control mechanisms that pervade all the code -- instead most functions continue to be written like before with very localized uses of this library.
+* Very tiny footprint.  The module is about a 100 lines now.
+* Nice syntactic sugar with use of Function.prototype to expose the wrapped methods on any function.
 
 Some other details (which other flow-control libraries may share):
 
 * All callbacks are expected to be node-style two parameter contracts.
-* If the result of a promise evaluation is another promise, it will be evaluated as well.
-* The Function.prototype is modified for ease of use -- just calling 'wrapped' on any function will provide access.
+* If the result of a promise evaluation is another promise, it will be evaluated as well.  Arguments to any wrapped function can be promises and the function is only evaluated after the promises are delivered.
 
 
 [![NPM info](https://nodei.co/npm/syncwrap.png?downloads=true)](https://npmjs.org/package/syncwrap)
@@ -23,7 +24,7 @@ This document is pretty sketchy. You can look at the unit tests to see more deta
 
 ## Install on Node
 
-    npm install syncwrap
+   npm install syncwrap
 
 ## Install on browser
 
