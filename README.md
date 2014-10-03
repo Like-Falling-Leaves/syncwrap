@@ -1,6 +1,6 @@
 # syncwrap
 
-This is yet another module to help manage async libraries.  There are two main differences between this and other modules:
+This is yet another module to help manage async libraries.  There are a few differences between this and other modules:
 
 * Promises are evaluated lazily.
 * Non-invasive, non-infectious: promises can be passed to functions that are not aware of promises and the fundamental style of programming does not need to change. No reason to also use complex flow control mechanisms that pervade all the code -- instead most functions continue to be written like before with very localized uses of this library.
@@ -48,13 +48,13 @@ function join(x, y, z) { return [x, y, z].join(' '); }
 
 ```
 
-### Example #1: Calling an series of async functions.
+### Example #1: Calling a series of async functions.
 
 ```javascript
 
-  var wrapped = test.wrapped(5,
-    test.wrapped(4,
-      test.wrapped(3, 2)
+  var wrapped = test.wrap(5,
+    test.wrap(4,
+      test.wrap(3, 2)
     )
   );
 
@@ -145,7 +145,8 @@ Note that the context passed itself can be a promise which is useful for a scena
 
 ```javascript
    function getHotels(userId, distance, done) {
-     User.prototype.getHotels.wrap(getUserFromId.wrapped(userId), [distance])
+     User.prototype.getHotels.wrap(distance)
+       .set({context: getUserFromId.wrapped(userId)})
        .done(done)
      ();
    }

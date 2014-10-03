@@ -1,7 +1,7 @@
 var assert = require('assert');
 var wrap = require('../wrap.js');
 
-function test(x, y, done) { return done(null, x + y); }
+function test(x, y, done) { setTimeout(function () { done(null, x + y);}, 200); }
 function testFail(x, y, done) { return done('Failed'); }
 function testSync(x, y) { return x + y; }
 function ccc(x, y, z) { return [x, y, z].join(' '); }
@@ -9,9 +9,9 @@ function join(x, y, z) { return [x, y, z].join(' '); }
 
 describe('Examples', function () {
   it ('Example 1.1', function (done) {
-    var wrapped = test.wrapped(5,
-      test.wrapped(4,
-        test.wrapped(3, 2)
+    var wrapped = test.wrap(5,
+      test.wrap(4,
+        test.wrap(3, 2)
       )
     );
 
@@ -25,9 +25,9 @@ describe('Examples', function () {
   });
 
   it ('Example 1.2', function (done) {
-    var wrapped = test.wrapped(5,
-      test.wrapped(4,
-        test.wrapped(3, 2)
+    var wrapped = test.wrap(5,
+      test.wrap(4,
+        test.wrap(3, 2)
       )
     );
 
@@ -66,16 +66,11 @@ describe('Examples', function () {
       .done(function (err, val) { assert.ok(!err); assert.equal(val, 33); done(); })  
   });
 
-  /** 
-   * this is a bug that needs to be fixed.  evaluating the error value should not 
-   * cause infinite regression
-
-  it ('Example 2.4 bug', function (done) {
+  it ('Example 2.4 - replace error with error', function (done) {
     testFail.wrapped(5, 3)
       .failValue(testFail.wrapped(22, 11))
-      .done(function (err, val) { assert.ok(!err); assert.equal(val, 33); done(); })  
+      .done(function (err, val) { assert.equal(err, 'Failed'); done(); })  
   });
-  */
 
   it ('Example 3.1', function (done) {
     testSync.wrapped(test.wrapped(5,5), test.wrapped(3,3))

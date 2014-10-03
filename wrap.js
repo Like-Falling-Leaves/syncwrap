@@ -1,6 +1,6 @@
 module.exports = wrap;
 wrap.unwrap = unwrap;
-Function.prototype.wrap = function (context, args) { return wrap(this, context, args); };
+Function.prototype.wrap = function () { return wrap(this, null, Array.prototype.slice.call(arguments)); };
 Object.defineProperty(Function.prototype, 'wrapped', {get: function () { return wrap(this); }});
 var nextTick = process && process.nextTick || setTimeout;
 
@@ -51,7 +51,12 @@ function wrap(fn, context, args) {
     }
 
     function complete(err, result) {
-      if (err && 'value' in wrapped._fail) return complete(null, wrapped._fail.value);
+      if (err && 'value' in wrapped._fail) {
+        result = wrapped._fail.value;
+        delete wrapped._fail.value;
+        return complete(null, result);
+      }
+
       if (err) {
         wrapped._results = [err];
         call(wrapped._fail.cb, err);
@@ -61,7 +66,11 @@ function wrap(fn, context, args) {
 
       unwrap([result], function (err, newResults) {
         if (err) return complete(err);
-        if ('value' in wrapped._success) return complete(null, wrapped._success.value);
+        if ('value' in wrapped._success) {
+          var result = wrapped._success.value;
+          delete wrapped._success.value;
+          return complete(null, result);
+        }
         wrapped._results = [null, newResults[0]];
         call(wrapped._success.cb, null, newResults[0]);
         call(wrapped._done, null, newResults[0]);
