@@ -144,8 +144,8 @@ function success(val) {
 function sync(bool) { this._sync = bool; return this; }
 function useWith(fn) { return wrap(fn, this, Array.prototype.slice.call(arguments, 1)); }
 function getField(field) { return wrap(function (done) { return done(null, _getField(this, field)); }, this); }
-function execSync() { return wrap(_execSync, this, Array.prototype.slice.call(arguments)); }
-function exec() { return wrap(_exec, this, Array.prototype.slice.call(arguments)); }
+function execSync() { return wrap(_execSync, this, Array.prototype.slice.call(arguments)).sync(true); }
+function exec() { return wrap(_exec, this, Array.prototype.slice.call(arguments)).sync(true); }
 
 
 function _getField(obj, field) { 
