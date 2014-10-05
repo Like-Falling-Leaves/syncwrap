@@ -202,6 +202,7 @@ You can fetch fields off of a promise and return a promise back.  The example is
        .done(done)
       (); // this is needed to actually execute as useWith provides a lazy evaluation object
    }
+```
 
 ### useWith
 
@@ -240,3 +241,42 @@ The above example can also be made more readable by fetching the getState method
 
 Note that you can pass parameters to exec and execSync and they get passed on to the base function.
 
+### method and methodSync
+
+The above example can be simplified further via method which helps invoke methods easily.
+
+
+```javascript
+
+   // Assume User.findById(id, done) returns a <user> object which has a getState method.
+   // To get the state of a user for id <userId>, you can do this:
+
+   function getUserState(userId, done) {
+     User.findById.wrap(id)
+       .methodSync('getState') // you can pass parameters here if getState takes parameters
+       .done(done)
+      (); // this is needed to actually execute as useWith provides a lazy evaluation object
+   }
+```
+
+### lazy.js and underscore
+
+Sometimes you want to pipe the output to lazyjs and or _ (depending on your library of choice).  This module does not depend on either of those modules but if you have them installed, it will load them via 'require'.
+
+Note that all parameters passed to the lazyjs methods will automatically be lazy-evaluated, so you can pass a bunch of user objects that have not been fetched for example (i.e. you can pass wrapped functions with the confidence that by the time the underscore/lazy.js library is called, all its parameters will be fully evaluated).
+
+```javascript
+
+   function someAsyncFunction(x, y, done) {
+     return done(null, [x, y]);
+   }
+
+   someAsyncFunction.wrapped(1, 2).lazyjs()
+     .methodSync('map', function (x) { return {x: x, x2: x * x}; })
+     .methodSync('pluck', 'x2')
+     .methodSync('value')
+     .done(function (err, val) {
+        console.log(val); // val == [1*1, 2*2] now!
+     })
+     ();
+```

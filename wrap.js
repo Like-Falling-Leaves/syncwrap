@@ -27,6 +27,11 @@ function wrap(fn, context, args) {
   wrapped.get = getField;
   wrapped.exec = exec;
   wrapped.execSync = execSync;
+  wrapped.method = method;
+  wrapped.methodSync = methodSync;
+  wrapped._ = doUnderscore;
+  wrapped.lazyjs = doLazyJS;
+
   return wrapped;
 
   function wrapped() {
@@ -146,12 +151,30 @@ function useWith(fn) { return wrap(fn, this, Array.prototype.slice.call(argument
 function getField(field) { return wrap(function (done) { return done(null, _getField(this, field)); }, this); }
 function execSync() { return wrap(_execSync, this, Array.prototype.slice.call(arguments)).sync(true); }
 function exec() { return wrap(_exec, this, Array.prototype.slice.call(arguments)).sync(true); }
-
+function method() { return wrap(_exec, this.get(arguments[0]), Array.prototype.slice.call(arguments, 1)).sync(true); }
+function methodSync() { return wrap(_execSync, this.get(arguments[0]), Array.prototype.slice.call(arguments, 1)).sync(true); }
+function doUnderscore() { return wrap(_doUnderscore, this, Array.prototype.slice.call(arguments)).sync(true); }
+function doLazyJS() { return wrap(_doLazyJS, this, Array.prototype.slice.call(arguments)).sync(true); }
 
 function _getField(obj, field) { 
   var ret = obj && obj[field];
   if (typeof(ret) == 'function') ret = ret.bind(obj);
   return ret;
 }
-function _execSync(done) { return wrap(this, null, Array.prototype.slice.call(arguments)).sync(true); }
-function _exec(done) { return wrap(this, null, Array.prototype.slice.call(arguments)); }
+function _execSync() { return wrap(this, null, Array.prototype.slice.call(arguments)).sync(true); }
+function _exec() { return wrap(this, null, Array.prototype.slice.call(arguments)); }
+function _doUnderscore() {
+  try {
+    require.resolve('underscore');
+    var _ = require('underscore');
+    return _(this);
+  } catch (e) {};
+}
+function _doLazyJS() {
+  try {
+    require.resolve('lazy.js');
+    var _ = require('lazy.js');
+    return _(this);
+  } catch (e) {};
+}
+

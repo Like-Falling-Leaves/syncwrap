@@ -115,6 +115,51 @@ describe('Examples', function () {
       })();
   });
 
+
+  it ('Example Advanced method and methodSync', function (done) {
+    function testUseWith(x, y, done) { 
+      return done(null, {
+        x: function getX(arg) { return arg + x; }, 
+        y: function getY(arg, done)  { return done(null, arg + y); }
+      }); 
+    }
+    testUseWith.wrapped(5, 3)
+      .methodSync('x', 2)
+      .done(function (err, val) {
+        assert.ok(!err);
+        assert.equal(val, 7);
+        testUseWith.wrapped(5, 3)
+          .method('y', 7)
+          .done(function (err, val) {
+            assert.ok(!err);
+            assert.equal(val, 10);
+            done();
+          })();
+      })();
+  });
+
+
+  it ('Example Advanced lazyjs', function (done) {
+    function testUseWith(x, y, done) { 
+      return done(null, [{
+        x: function getX(arg) { return arg + x; }, 
+        y: function getY(arg, done)  { return done(null, arg + y); }
+      }]); 
+    }
+    testUseWith.wrapped(5, 3)
+      .lazyjs()
+      .methodSync('pluck', 'x')
+      .methodSync('value')
+      .get('0')
+      .execSync(2)
+      .done(function (err, val) {
+        console.log(err);
+        assert.ok(!err);
+        assert.equal(val, 7);
+        done();
+      })();
+  });
+
 });
 
 describe('Sync Wrap Suite', function () {

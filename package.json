@@ -8,10 +8,10 @@
   "author": {"name": "Like FallingLeaves", "email": "likefallingleaves@gmail.com"},
   "main": "./wrap.js",
   "maintainers": [{"name": "Like FallingLeaves", "email": "likefallingleaves@gmail.com"}],
-  "version": "0.0.5",
+  "version": "0.0.6",
   "repository": { "type": "git", "url": "git://github.com/like-falling-leaves/syncwrap.git" },
   "readmeFilename": "README.md",
   "dependencies": {},
-  "devDependencies": { "mocha": "1.*" },
+  "devDependencies": { "mocha": "1.*", "lazy.js": "~0.3.0" },
   "scripts": { "test": "mocha test/" }
 }
