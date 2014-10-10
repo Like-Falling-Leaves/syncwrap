@@ -31,6 +31,8 @@ function wrap(fn, context, args) {
   wrapped.methodSync = methodSync;
   wrapped._ = doUnderscore;
   wrapped.lazyjs = doLazyJS;
+  wrapped.applyTo = applyTo;
+  wrapped.applyToSync = applyToSync;
 
   return wrapped;
 
@@ -147,6 +149,10 @@ function success(val) {
   return this; 
 }
 function sync(bool) { this._sync = bool; return this; }
+
+function applyTo(fn) { return wrap(fn, this, [this].concat(Array.prototype.slice.call(arguments, 1))); }
+function applyToSync(fn) { return wrap(fn, this, [this].concat(Array.prototype.slice.call(arguments, 1))).sync(true); }
+
 function useWith(fn) { return wrap(fn, this, Array.prototype.slice.call(arguments, 1)); }
 function getField(field) { return wrap(function (done) { return done(null, _getField(this, field)); }, this); }
 function execSync() { return wrap(_execSync, this, Array.prototype.slice.call(arguments)).sync(true); }
