@@ -159,6 +159,19 @@ describe('Examples', function () {
       })();
   });
 
+  it ('Example Simulate Sequence by chaining successValue', function (done) {
+    var called = 0;
+    test.wrapped(3, 5)
+      .successValue(test.wrapped(4, 2).done(function () { called ++; }))
+      .successValue(test.wrapped(2, 12).done(function () { called ++; }))
+      .done(function (err, value) {
+        assert.ok(!err);
+        assert.equal(value, 14);
+        assert.equal(called, 2);
+        done();
+      });
+  });
+
 });
 
 describe('Sync Wrap Suite', function () {

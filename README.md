@@ -186,6 +186,18 @@ There is no built-in support for serial execution of async functions but that is
    }
 ```
 
+An alternate way is to rely on the fact that successValue can be chained
+
+```javascript
+
+   func1.wrapped(a, b, c)
+     .successValue(func2.wrapped(d, e, f))
+     .successValue(func3.wrapped(g, h, i))
+     .done(allDoneSuccessfully);
+
+    // you can do this in a loop if you are so inclined
+```  
+
 ### Advanced features
 
 ### get

@@ -11,8 +11,8 @@ function wrap(fn, context, args) {
   wrapped._fn = fn;
   wrapped._context = context;
   wrapped._args = args;
-  wrapped._fail = {cb: []};
-  wrapped._success = {cb: []};
+  wrapped._fail = {cb: [], value: []};
+  wrapped._success = {cb: [], value: []};
   wrapped._done = [];
   wrapped.sync = sync;
   wrapped.fail = fail;
@@ -63,12 +63,7 @@ function wrap(fn, context, args) {
     }
 
     function complete(err, result) {
-      if (err && 'value' in wrapped._fail) {
-        result = wrapped._fail.value;
-        delete wrapped._fail.value;
-        return complete(null, result);
-      }
-
+      if (err && wrapped._fail.value.length) return complete(null, wrapped._fail.value.shift());
       if (err) {
         wrapped._results = [err];
         call(wrapped._fail.cb, err);
@@ -78,11 +73,7 @@ function wrap(fn, context, args) {
 
       unwrap([result], function (err, newResults) {
         if (err) return complete(err);
-        if ('value' in wrapped._success) {
-          var result = wrapped._success.value;
-          delete wrapped._success.value;
-          return complete(null, result);
-        }
+        if (wrapped._success.value.length) return complete(null, wrapped._success.value.shift());
         wrapped._results = [null, newResults[0]];
         call(wrapped._success.cb, null, newResults[0]);
         call(wrapped._done, null, newResults[0]);
@@ -130,8 +121,8 @@ function set(key, val) {
 }
 
 function ignoreErrors(bool) { this._ignoreErrors = bool; return this; }
-function failValue(val) { this._fail.value = val; return this; }
-function successValue(val) { this._success.value = val; return this; }
+function failValue(val) { this._fail.value.push(val); return this; }
+function successValue(val) { this._success.value.push(val); return this; }
 function done(val) { 
   if (this._results) val(this._results[0], this._results[1]);
   else this._done.push(val); 
