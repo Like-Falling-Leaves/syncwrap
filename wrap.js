@@ -89,7 +89,7 @@ function wrap(fn, context, args) {
       });
     }
 
-    function call(cb, err, result) { for (var kk = 0; kk < cb.length; kk ++) cb[kk](err, result); }
+    function call(cb, err, result) { for (var kk = 0; kk < cb.length; kk ++) if (cb[kk]) cb[kk](err, result); }
   }
 }
 

@@ -153,7 +153,6 @@ describe('Examples', function () {
       .get('0')
       .execSync(2)
       .done(function (err, val) {
-        console.log(err);
         assert.ok(!err);
         assert.equal(val, 7);
         done();
