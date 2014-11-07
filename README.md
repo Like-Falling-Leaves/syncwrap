@@ -273,7 +273,7 @@ The above example can be simplified further via method which helps invoke method
 
 ### lazy.js and underscore
 
-Sometimes you want to pipe the output to lazyjs and or _ (depending on your library of choice).  This module does not depend on either of those modules but if you have them installed, it will load them via 'require'.
+Sometimes you want to pipe the output to lazyjs and or _ (depending on your library of choice).  This module does not depend on either of those modules but it provides a way to **apply** them.
 
 Note that all parameters passed to the lazyjs methods will automatically be lazy-evaluated, so you can pass a bunch of user objects that have not been fetched for example (i.e. you can pass wrapped functions with the confidence that by the time the underscore/lazy.js library is called, all its parameters will be fully evaluated).
 
@@ -283,7 +283,7 @@ Note that all parameters passed to the lazyjs methods will automatically be lazy
      return done(null, [x, y]);
    }
 
-   someAsyncFunction.wrapped(1, 2).lazyjs()
+   someAsyncFunction.wrapped(1, 2).applyToSync(require('lazy.js') || require('underscore'))
      .methodSync('map', function (x) { return {x: x, x2: x * x}; })
      .methodSync('pluck', 'x2')
      .methodSync('value')

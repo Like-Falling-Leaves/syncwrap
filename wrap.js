@@ -5,6 +5,8 @@ Object.defineProperty(Function.prototype, 'wrapped', {get: function () { return 
 var nextTick = process && process.nextTick || setTimeout;
 
 function wrap(fn, context, args) {
+  if (typeof(fn) == 'object') return wrap(function () { return this; }, fn).sync(true);
+
   wrapped._isWrapped = true;
   wrapped._sync = false;
   wrapped._started = false;
@@ -14,6 +16,7 @@ function wrap(fn, context, args) {
   wrapped._fail = {cb: [], value: []};
   wrapped._success = {cb: [], value: []};
   wrapped._done = [];
+  wrapped._complete = complete;
   wrapped.sync = sync;
   wrapped.fail = fail;
   wrapped.success = success;
@@ -48,6 +51,7 @@ function wrap(fn, context, args) {
       if (err) return complete(err);
       var context = newArgs.pop();
 
+      if (!wrapped._fn) return complete(null, context);
       if (typeof(wrapped._fn) == 'string') wrapped._fn = context[wrapped._fn];
       if (wrapped._sync) {
         var result;
@@ -61,27 +65,27 @@ function wrap(fn, context, args) {
       newArgs.push(complete);
       wrapped._fn.apply(context, newArgs);
     }
-
-    function complete(err, result) {
-      if (err && wrapped._fail.value.length) return complete(null, wrapped._fail.value.shift());
-      if (err) {
-        wrapped._results = [err];
-        call(wrapped._fail.cb, err);
-        call(wrapped._done, err);
-        return;
-      }
-
-      unwrap([result], function (err, newResults) {
-        if (err) return complete(err);
-        if (wrapped._success.value.length) return complete(null, wrapped._success.value.shift());
-        wrapped._results = [null, newResults[0]];
-        call(wrapped._success.cb, null, newResults[0]);
-        call(wrapped._done, null, newResults[0]);
-      });
-    }
-
-    function call(cb, err, result) { for (var kk = 0; kk < cb.length; kk ++) if (cb[kk]) cb[kk](err, result); }
   }
+   
+  function complete(err, result) {
+    if (err && wrapped._fail.value.length) return complete(null, wrapped._fail.value.shift());
+    if (err) {
+      wrapped._results = [err];
+      call(wrapped._fail.cb, err);
+      call(wrapped._done, err);
+      return;
+    }
+    
+    unwrap([result], function (err, newResults) {
+      if (err) return complete(err);
+      if (wrapped._success.value.length) return complete(null, wrapped._success.value.shift());
+      wrapped._results = [null, newResults[0]];
+      call(wrapped._success.cb, null, newResults[0]);
+      call(wrapped._done, null, newResults[0]);
+    });
+  }
+  
+  function call(cb, err, result) { while (cb.length) (cb.shift() || function () {})(err, result); }
 }
 
 function unwrap(array, done) {
@@ -124,19 +128,19 @@ function ignoreErrors(bool) { this._ignoreErrors = bool; return this; }
 function failValue(val) { this._fail.value.push(val); return this; }
 function successValue(val) { this._success.value.push(val); return this; }
 function done(val) { 
-  if (this._results) val(this._results[0], this._results[1]);
-  else this._done.push(val); 
+  this._done.push(val);
+  if (this._results) this._complete(this._results[0], this._results[1]);
   return this; 
 }
 
 function fail(val) { 
-  if (this._results && this._results[0]) val(this._results[0], this._results[1]);
-  else this._fail.cb.push(val); 
+  this._fail.cb.push(val);
+  if (this._results) this._complete(this._results[0], this._results[1]);
   return this; 
 }
 function success(val) { 
-  if (this._results && !this._results[0]) val(this._results[0], this._results[1]);
-  else this._success.cb.push(val); 
+  this._success.cb.push(val);
+  if (this._results) this._complete(this._results[0], this._results[1]);
   return this; 
 }
 function sync(bool) { this._sync = bool; return this; }

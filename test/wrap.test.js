@@ -340,4 +340,10 @@ describe('Sync Wrap Suite', function () {
     ();
   });
 
+  it ('should allow wrapping simple objects', function (done) {
+    wrap({hello: 5}).done(function (err, val) {
+      assert.deepEqual(val, {hello: 5});
+      done();
+    })();
+  });
 });
